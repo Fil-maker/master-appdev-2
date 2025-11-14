@@ -12,7 +12,8 @@
 ## Инструкция по запуску
 * uv pip install -r requirements.txt
 * alembic upgrade head
-* В app/main.py указать DATABASE_URL или указать соответсвующую переменную в окружении проекта
+* В .env указать DATABASE_URL для работы асинхронной бд
+* В .env указать DATABASE_URL_LAB2 для заполнения бд данными в синхронном режиме
 * (Опционально) выполнить: python lab2.py
 * python app/main.py
 * http://127.0.0.1:8000/users Для get запросов к api пользователей.

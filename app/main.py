@@ -10,6 +10,12 @@ from app.controllers.user_controller import UserController
 from app.repositories.user_repository import UserRepository
 from app.services.user_service import UserService
 
+from dotenv import load_dotenv
+import os
+
+from lab2 import drop_all, fill_db_with_data, print_all_data
+
+load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:postgres@192.168.1.64/test_db")
 
 engine = create_async_engine(DATABASE_URL, echo=False)

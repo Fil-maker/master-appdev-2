@@ -1,9 +1,13 @@
+import os
+
+from dotenv import load_dotenv
 from sqlalchemy import select, create_engine
 from sqlalchemy.orm import selectinload, sessionmaker
 
 from orm_db import User
 
-connect_url = "postgresql://postgres:postgres@192.168.1.64:5432/test_db"
+load_dotenv()
+connect_url = os.getenv("DATABASE_URL_LAB2", "postgresql://postgres:postgres@192.168.1.64:5432/test_db")
 engine = create_engine(connect_url, echo=False)
 session_factory = sessionmaker(engine)
 
