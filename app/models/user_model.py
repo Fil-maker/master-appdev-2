@@ -1,18 +1,22 @@
 from pydantic import BaseModel
 
-from orm_db import User
-
 
 class UserCreate(BaseModel):
-    username: str
     email: str
+    first_name: str
+    second_name: str
+    username: str
 
 
 class UserResponse(BaseModel):
     id: int
     username: str
+    first_name: str
+    second_name: str
     email: str
 
 
 class UserUpdate(BaseModel):
     username: str
+    first_name: str
+    second_name: str

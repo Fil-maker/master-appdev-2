@@ -29,7 +29,8 @@ class UserController(Controller):
             return f"User with ID {user_id} not found"
             # raise NotFoundException(detail=f"User with ID {user_id} not found")
         return UserResponse.model_validate(
-            UserResponse(id=user.id, username=user.username, email=user.email)
+            UserResponse(id=user.id, first_name=user.first_name, second_name=user.second_name, username=user.username,
+                         email=user.email)
         )
 
     @get()
@@ -40,10 +41,11 @@ class UserController(Controller):
         """Задавать параметры пагинации"""
         result = await user_service.get_by_filter(2, 1)
         users = [UserResponse.model_validate(
-            UserResponse(id=user.id, username=user.username, email=user.email)
+            UserResponse(id=user.id, first_name=user.first_name, second_name=user.second_name, username=user.username,
+                         email=user.email)
         )
-            for user in result[0]]
-        return users, f"Всего пользователей в бд: {result[1]}"
+            for user in result]
+        return users
 
     @post()
     async def create_user(
@@ -55,7 +57,8 @@ class UserController(Controller):
             user = await user_service.create(user_data)
         except ValueError as e:
             return e.args
-        return UserResponse(id=user.id, username=user.username, email=user.email)
+        return UserResponse(id=user.id, first_name=user.first_name, second_name=user.second_name,
+                            username=user.username, email=user.email)
 
     @delete("/{user_id:int}")
     async def delete_user(
@@ -73,7 +76,8 @@ class UserController(Controller):
             user_data: UserUpdate,
     ) -> UserResponse:
         try:
-            user = user_service.update(user_id, user_data)
+            user = await user_service.update(user_id, user_data)
         except Exception as e:
             return e.args
-        return UserResponse(id=user.id, username=user.username, email=user.email)
+        return UserResponse(id=user.id, first_name=user.first_name, second_name=user.second_name,
+                            username=user.username, email=user.email)

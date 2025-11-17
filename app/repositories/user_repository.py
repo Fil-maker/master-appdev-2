@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from app.models.user_model import UserCreate, UserUpdate
-from orm_db import User
+from app.orm_db import User
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -18,8 +18,7 @@ class UserRepository:
         """page: в человеческом формате начиная с 1"""
         offset_val = (page - 1) * count
         result = await self.session.execute(select(User).limit(count).offset(offset_val))
-        num_count = await self.session.execute(select(User))
-        return list(result.scalars().all()), len(num_count.scalars().all())
+        return list(result.scalars().all())
 
     async def get_by_email(self, email: str) -> User:
         result = await self.session.execute(
