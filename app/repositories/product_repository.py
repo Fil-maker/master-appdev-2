@@ -1,7 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.orm_db import Product
+
 from app.models.product_model import ProductCreate, ProductUpdate
+from app.orm_db import Product
 
 
 class ProductRepository:
@@ -37,7 +38,9 @@ class ProductRepository:
         await self.session.refresh(product)
         return product
 
-    async def update(self, product_id: int, product_data: ProductUpdate) -> Product | None:
+    async def update(
+            self, product_id: int, product_data: ProductUpdate
+    ) -> Product | None:
         product = await self.get_by_id(product_id)
         if product:
             update_data = product_data.model_dump(exclude_unset=True)

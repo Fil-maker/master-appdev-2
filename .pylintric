@@ -1,0 +1,55 @@
+[BASIC]
+init-hook='import sys; sys.path.append(".")"
+disable =
+    missing-function-docstring,
+    missing-module-docstring,
+    missing-class-docstring,
+    too-few-public-methods,
+    not-callable,
+    attribute-defined-outside-init,
+    ungrouped-imports,
+    wrong-import-order,
+    duplicate-code,
+    unused-import,
+    too-many-arguments,
+    unused-argument,
+    too-many-positional-arguments,
+    import-outside-toplevel,
+    too-many-instance-attributes,
+ignore-paths =
+    app,
+    deploy,
+    temp,
+    build,
+    /app/tests/,
+    app/desk/repository/sqlalchemy/migration/alembic,
+extension-pkg-whitelist=
+    pydantic,
+    orjson,
+generated-members =
+    [pydantic.PostgresDsn.build]
+[tool.isort]
+profile = "black"
+known_first_party = ["app"]
+skip = []
+
+[tool.black]
+line-length = 88
+target-version = ['py313']
+exclude = '''
+/(
+\.git
+| \.hg
+| \.mypy_cache
+| \.tox
+| \.venv
+| \tests
+| orm_db.py
+| _build
+| buck-out
+| build
+| docker
+| config
+| temp
+)/
+'''

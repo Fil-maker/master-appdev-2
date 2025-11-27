@@ -6,10 +6,14 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "alembic>=1.17.0",
+    "black>=25.11.0",
+    "isort>=7.0.0",
     "litestar>=2.18.0",
     "logging>=0.4.9.6",
+    "pre-commit>=4.5.0",
     "psycopg2-binary>=2.9.11",
     "pydantic>=2.12.4",
+    "pylint>=4.0.3",
     "pytest>=9.0.1",
     "python-dotenv>=1.2.1",
     "scikit-learn>=1.7.2",
@@ -21,3 +25,9 @@ dependencies = [
 testpaths = ["tests"]
 asyncio_mode = "auto"
 addopts = "--verbose --color=yes"
+#[tool.black]
+#extend-exclude = '''
+#/(
+#    | legacy_files
+#)/
+#'''

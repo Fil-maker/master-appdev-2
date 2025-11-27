@@ -1,9 +1,10 @@
-from pydantic import BaseModel, ConfigDict
-from app.models.user_model import UserResponse
+from typing import Optional
+
+from pydantic import BaseModel
+
 from app.models.address_model import AddressResponse
 from app.models.product_model import ProductResponse
-from datetime import datetime
-from typing import Optional
+from app.models.user_model import UserResponse
 
 
 class OrderCreate(BaseModel):

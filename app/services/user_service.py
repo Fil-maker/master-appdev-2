@@ -1,7 +1,8 @@
 from litestar.exceptions import NotFoundException
+
 from app.models.user_model import UserCreate, UserUpdate
-from app.repositories.user_repository import UserRepository
 from app.orm_db import User
+from app.repositories.user_repository import UserRepository
 
 
 class UserService:

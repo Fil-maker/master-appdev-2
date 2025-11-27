@@ -1,9 +1,8 @@
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.address_model import AddressCreate
-from app.models.user_model import UserCreate, UserUpdate
 from app.orm_db import Address
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class AddressRepository:

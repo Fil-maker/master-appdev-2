@@ -1,4 +1,5 @@
 import pytest
+
 from app.models.product_model import ProductCreate, ProductUpdate
 from app.repositories.product_repository import ProductRepository
 
@@ -24,7 +25,9 @@ class TestProductRepository:
         }
 
         product = await product_repository.create(ProductCreate(**product_data))
-        updated_product = await product_repository.update(product.id, ProductUpdate(stock_quantity=12))
+        updated_product = await product_repository.update(
+            product.id, ProductUpdate(stock_quantity=12)
+        )
 
         assert updated_product.stock_quantity == 12
 

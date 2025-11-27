@@ -1,7 +1,8 @@
 from litestar.exceptions import NotFoundException
+
 from app.models.order_model import OrderCreate, OrderUpdate
-from app.repositories.order_repository import OrderRepository
 from app.orm_db import Order
+from app.repositories.order_repository import OrderRepository
 
 
 class OrderService:

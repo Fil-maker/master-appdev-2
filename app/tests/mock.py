@@ -1,11 +1,12 @@
-import pytest
-from unittest.mock import Mock, AsyncMock
+from unittest.mock import AsyncMock, Mock
 
+import pytest
+
+from app.models.order_model import OrderCreate
 from app.repositories.order_repository import OrderRepository
 from app.repositories.product_repository import ProductRepository
 from app.repositories.user_repository import UserRepository
 from app.services.order_service import OrderService
-from app.models.order_model import OrderCreate
 
 
 class TestOrderService:
@@ -22,18 +23,11 @@ class TestOrderService:
         mock_product_repo.get_by_id.return_value = Mock(
             id=1, name="Test Product", stock_quantity=5
         )
-        mock_order_repo.create.return_value = Mock(
-            id=1, user_id=1
-        )
+        mock_order_repo.create.return_value = Mock(id=1, user_id=1)
 
-        order_service = OrderService(
-            order_repository=mock_order_repo
-        )
+        order_service = OrderService(order_repository=mock_order_repo)
 
-        order_data = {
-            "user_id": 1,
-            "products_id": [1]
-        }
+        order_data = {"user_id": 1, "products_id": [1]}
 
         result = await order_service.create(OrderCreate(**order_data))
 
@@ -52,14 +46,9 @@ class TestOrderService:
             id=1, name="Test Product", stock_quantity=1
         )
 
-        order_service = OrderService(
-            order_repository=mock_order_repo
-        )
+        order_service = OrderService(order_repository=mock_order_repo)
 
-        order_data = {
-            "user_id": 1,
-            "products_id": [1]
-        }
+        order_data = {"user_id": 1, "products_id": [1]}
 
         with pytest.raises(ValueError, match="Insufficient stock"):
             await order_service.create(OrderCreate(**order_data))

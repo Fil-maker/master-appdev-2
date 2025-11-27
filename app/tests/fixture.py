@@ -5,16 +5,18 @@ from litestar.testing import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
+from app.main import app  # Replace with your actual app import
 # Import your actual application components
 from app.orm_db import Base  # Replace with your actual Base import
 from app.repositories.address_repository import AddressRepository
 from app.repositories.order_repository import OrderRepository
 from app.repositories.product_repository import ProductRepository
 from app.repositories.user_repository import UserRepository
-from app.main import app  # Replace with your actual app import
 
 # Test database URL
-TEST_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:postgres@192.168.1.64/test_db")
+TEST_DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql+asyncpg://postgres:postgres@217.76.176.93/test_db"
+)
 
 
 @pytest.fixture(scope="session")

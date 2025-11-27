@@ -1,0 +1,19 @@
+fail_fast: false
+repos:
+  - repo: local
+    hooks:
+      - id: black
+        name: Black
+        entry: black app --exclude "app|orm_db.py|fixture.py"
+        pass_filenames: false
+        language: system
+      - id: isort
+        name: isort
+        entry: isort app
+        pass_filenames: false
+        language: system
+      - id: pylint
+        name: pylint
+        entry: pylint app --exit-zero
+        pass_filenames: false
+        language: system

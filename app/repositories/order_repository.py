@@ -1,7 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.orm_db import Order, User, Product, Address
+
 from app.models.order_model import OrderCreate, OrderUpdate
+from app.orm_db import Address, Order, Product, User
 
 
 class OrderRepository:
@@ -9,15 +10,15 @@ class OrderRepository:
         self.session = session
 
     async def get_by_id(self, order_id: int) -> Order | None:
-        result = await self.session.execute(
-            select(Order).where(Order.id == order_id)
-        )
+        result = await self.session.execute(select(Order).where(Order.id == order_id))
         return result.scalar_one_or_none()
 
     async def get_by_filter(self, count: int, page: int, **kwargs) -> list[Order]:
         """page: в человеческом формате начиная с 1"""
         offset_val = (page - 1) * count
-        result = await self.session.execute(select(Order).limit(count).offset(offset_val))
+        result = await self.session.execute(
+            select(Order).limit(count).offset(offset_val)
+        )
         return list(result.scalars().all())
 
     async def create(self, order_data: OrderCreate) -> Order:
@@ -27,9 +28,7 @@ class OrderRepository:
         )
         products = []
         for i in order_data.products_id:
-            result = await self.session.execute(
-                select(Product).where(Product.id == i)
-            )
+            result = await self.session.execute(select(Product).where(Product.id == i))
             products.append(result.first())
         user = await self.session.execute(
             select(User).where(User.id == order_data.user_id)

@@ -1,29 +1,30 @@
 # Настройка базы данных
-import os
 import logging
+import os
+
+import uvicorn
+from dotenv import load_dotenv
 from litestar import Litestar
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
 from litestar.di import Provide
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
 
 from app.controllers.user_controller import UserController
 from app.repositories.user_repository import UserRepository
 from app.services.user_service import UserService
 
-from dotenv import load_dotenv
-import os
-
-from lab2 import drop_all, fill_db_with_data, print_all_data
-
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:postgres@192.168.1.64/test_db")
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql+asyncpg://postgres:postgres@192.168.1.64/test_db"
+)
 
 engine = create_async_engine(DATABASE_URL, echo=False)
-async_session_factory = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+async_session_factory = sessionmaker(
+    engine, class_=AsyncSession, expire_on_commit=False
+)
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -79,13 +80,9 @@ app = Litestar(
         "user_service": Provide(provide_user_service),
         "user_repository": Provide(provide_user_repository),
     },
-    exception_handlers={
-        Exception: global_exception_handler
-    },
-    middleware=[LoggingMiddleware]
+    exception_handlers={Exception: global_exception_handler},
+    middleware=[LoggingMiddleware],
 )
 
 if __name__ == "__main__":
-    import uvicorn
-
     uvicorn.run(app, host="127.0.0.1", port=8000, log_level=5)

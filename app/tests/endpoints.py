@@ -1,11 +1,11 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
 from litestar.di import Provide
+from litestar.status_codes import HTTP_200_OK
 from litestar.testing import create_test_client
-from litestar.status_codes import HTTP_200_OK, HTTP_404_NOT_FOUND
 
-from app.models.user_model import UserResponse, UserCreate, UserUpdate
+from app.models.user_model import UserResponse
 from app.services.user_service import UserService
 
 
@@ -27,7 +27,7 @@ def test_get_user_by_id_success():
     # Act
     with create_test_client(
             route_handlers=[UserController],
-            dependencies={"user_service": Provide(lambda: mock_user_service)}
+            dependencies={"user_service": Provide(lambda: mock_user_service)},
     ) as client:
         response = client.get("/users/1")
 
@@ -54,12 +54,14 @@ def test_get_user_by_id_not_found():
     # Act
     with create_test_client(
             route_handlers=[UserController],
-            dependencies={"user_service": Provide(lambda: mock_user_service)}
+            dependencies={"user_service": Provide(lambda: mock_user_service)},
     ) as client:
         response = client.get("/users/999")
 
     # Assert
-    assert response.status_code == HTTP_200_OK  # Так как возвращается строка, а не исключение
+    assert (
+            response.status_code == HTTP_200_OK
+    )  # Так как возвращается строка, а не исключение
     assert response.text == "User with ID 999 not found"
     mock_user_service.get_by_id.assert_called_once_with(999)
 
@@ -70,7 +72,7 @@ def test_get_user_by_id_invalid_id():
 
     with create_test_client(
             route_handlers=[UserController],
-            dependencies={"user_service": Provide(lambda: AsyncMock(spec=UserService))}
+            dependencies={"user_service": Provide(lambda: AsyncMock(spec=UserService))},
     ) as client:
         # ID должен быть > 0 согласно параметру gt=0
         response = client.get("/users/0")
@@ -94,13 +96,11 @@ async def test_get_user_by_id_direct_call():
     mock_user_service.get_by_id.return_value = mock_user
 
     from app.controllers.user_controller import UserController
+
     controller = UserController()
 
     # Act
-    result = await controller.get_user_by_id(
-        user_service=mock_user_service,
-        user_id=1
-    )
+    result = await controller.get_user_by_id(user_service=mock_user_service, user_id=1)
 
     # Assert
     assert isinstance(result, UserResponse)
@@ -139,7 +139,7 @@ def test_get_all_users():
     # Act
     with create_test_client(
             route_handlers=[UserController],
-            dependencies={"user_service": Provide(lambda: mock_user_service)}
+            dependencies={"user_service": Provide(lambda: mock_user_service)},
     ) as client:
         response = client.get("/users")
 
