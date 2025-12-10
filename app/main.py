@@ -1,6 +1,7 @@
 # Настройка базы данных
 import logging
 import os
+from contextlib import asynccontextmanager
 
 import uvicorn
 from dotenv import load_dotenv
@@ -10,7 +11,12 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.controllers.user_controller import UserController
+from app.rabbit import broker
+from app.repositories.order_repository import OrderRepository
+from app.repositories.product_repository import ProductRepository
 from app.repositories.user_repository import UserRepository
+from app.services.order_service import OrderService
+from app.services.product_service import ProductService
 from app.services.user_service import UserService
 
 load_dotenv()
@@ -48,6 +54,26 @@ async def provide_user_service(user_repository: UserRepository) -> UserService:
     return UserService(user_repository)
 
 
+async def provide_product_service(product_repository: ProductRepository) -> ProductService:
+    """Провайдер сервиса пользователей"""
+    return ProductService(product_repository)
+
+
+async def provide_product_repository(db_session: AsyncSession) -> ProductRepository:
+    """Провайдер репозитория пользователей"""
+    return ProductRepository(db_session)
+
+
+async def provide_order_service(order_repository: OrderRepository) -> OrderService:
+    """Провайдер сервиса пользователей"""
+    return OrderService(order_repository)
+
+
+async def provide_order_repository(db_session: AsyncSession) -> OrderRepository:
+    """Провайдер репозитория пользователей"""
+    return OrderRepository(db_session)
+
+
 def global_exception_handler(request, exc: Exception) -> None:
     """Глобальный обработчик для логирования необработанных исключений"""
     logger.error(f"Unhandled exception in {request.method} {request.url}: {str(exc)}")
@@ -73,15 +99,28 @@ class LoggingMiddleware(MiddlewareProtocol):
         await self.app(scope, receive, send)
 
 
+# В lifespan Litestar мы запускаем брокера
+@asynccontextmanager
+async def lifespan(app: Litestar):
+    # Запускаем брокера
+    await broker.start()
+    yield
+    # Останавливаем брокера
+    await broker.close()
+
+
 app = Litestar(
     route_handlers=[UserController],
     dependencies={
         "db_session": Provide(provide_db_session),
-        "user_service": Provide(provide_user_service),
+        "user_service": Provide(provide_user_service, use_cache=True),
         "user_repository": Provide(provide_user_repository),
+        "product_service": Provide(provide_product_service, use_cache=True),
+        "product_repository": Provide(provide_product_repository),
     },
     exception_handlers={Exception: global_exception_handler},
     middleware=[LoggingMiddleware],
+    lifespan=[lifespan]
 )
 
 if __name__ == "__main__":

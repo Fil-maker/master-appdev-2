@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from app.orm_db import User, Address, Product, Order
 
 load_dotenv()
-connect_url = os.getenv("DATABASE_URL_LAB2", "postgresql://postgres:postgres@192.168.1.64:5432/test_db")
+connect_url = os.getenv("DATABASE_URL_LAB2", "postgresql://safe_postgres_user:postgres!kio9@217.76.176.93:5432/test_db")
 engine = create_engine(connect_url, echo=False)
 session_factory = sessionmaker(engine)
 

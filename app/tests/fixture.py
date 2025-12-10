@@ -15,7 +15,7 @@ from app.repositories.user_repository import UserRepository
 
 # Test database URL
 TEST_DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql+asyncpg://postgres:postgres@217.76.176.93/test_db"
+    "DATABASE_URL", "postgresql+asyncpg://safe_postgres_user:postgres!kio9@217.76.176.93/test_db"
 )
 
 

@@ -17,7 +17,7 @@ class UserService:
         return None
 
     async def get_by_filter(self, count: int, page: int, **kwargs) -> list[User]:
-        users = await self.user_repository.get_by_filter(count, page)
+        users = await self.user_repository.get_by_filter(count, page, **kwargs)
         return users
 
     async def create(self, user_data: UserCreate) -> User:

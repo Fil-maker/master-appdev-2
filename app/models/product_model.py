@@ -5,15 +5,15 @@ from pydantic import BaseModel
 
 class ProductCreate(BaseModel):
     name: str
-    stock_quantity: Optional[int] = 0
+    stock_quantity: Optional[int] = None
 
 
 class ProductUpdate(BaseModel):
-    name: Optional[str] = None
+    name: Optional[str]
     stock_quantity: Optional[int] = None
 
 
 class ProductResponse(BaseModel):
     id: int
     name: str
-    stock_quantity: Optional[int] = None
+    stock_quantity: int

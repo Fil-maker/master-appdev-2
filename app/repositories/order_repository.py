@@ -22,20 +22,25 @@ class OrderRepository:
         return list(result.scalars().all())
 
     async def create(self, order_data: OrderCreate) -> Order:
-        order = Order(**order_data.model_dump())
+        order = Order(**order_data.model_dump(exclude={"products_id"}))
         address = await self.session.execute(
             select(Address).where(Address.id == order_data.address_id)
         )
         products = []
         for i in order_data.products_id:
             result = await self.session.execute(select(Product).where(Product.id == i))
-            products.append(result.first())
+            product = result.scalars().first()
+            if product.stock_quantity < 0:
+                raise Exception("NOT ENOUGH QUANTITY")
+            products.append(product)
+        for p in products:
+            p.stock_quantity -= 1
         user = await self.session.execute(
             select(User).where(User.id == order_data.user_id)
         )
-        order.address = address.first()
+        order.address = address.scalars().first()
         order.products = products
-        order.user = user
+        order.user = user.scalars().first()
         self.session.add(order)
 
         await self.session.commit()
