@@ -5,6 +5,7 @@ from litestar.di import Provide
 from litestar.params import Parameter
 
 from app.models.user_model import UserCreate, UserResponse, UserUpdate
+from app.redisCache import RedisCache
 from app.services.user_service import UserService
 
 
@@ -17,21 +18,33 @@ class UserController(Controller):
             self,
             user_service: UserService,
             user_id: int = Parameter(gt=0),
-    ) -> UserResponse:
+    ) -> str:
         """Получить пользователя по ID"""
-        user = await user_service.get_by_id(user_id)
+        cache = RedisCache()
+        await cache.connect()
+        user = await cache.get(f"user_{user_id}")
+        if user is None:
+            user = await user_service.get_by_id(user_id)
+            if user is not None:
+                await cache.set(f"user_{user_id}", UserResponse(
+                    id=user.id,
+                    first_name=user.first_name,
+                    second_name=user.second_name,
+                    username=user.username,
+                    email=user.email,
+                ).model_dump(), ttl=60 * 60)
+                user = UserResponse(
+                    id=user.id,
+                    first_name=user.first_name,
+                    second_name=user.second_name,
+                    username=user.username,
+                    email=user.email,
+                )
+        await cache.connect()
         if not user:
             return f"User with ID {user_id} not found"
             # raise NotFoundException(detail=f"User with ID {user_id} not found")
-        return UserResponse.model_validate(
-            UserResponse(
-                id=user.id,
-                first_name=user.first_name,
-                second_name=user.second_name,
-                username=user.username,
-                email=user.email,
-            )
-        )
+        return user
 
     @get()
     async def get_all_users(
@@ -79,6 +92,9 @@ class UserController(Controller):
             user_id: int,
     ) -> None:
         await user_service.delete(user_id)
+        cache = RedisCache()
+        await cache.connect()
+        await cache.delete(f"user_{user_id}")
 
     @put("/{user_id:int}")
     async def update_user(
@@ -89,6 +105,10 @@ class UserController(Controller):
     ) -> UserResponse:
         try:
             user = await user_service.update(user_id, user_data)
+            cache = RedisCache()
+            await cache.connect()
+            await cache.delete(f"user_{user_id}")
+            await cache.disconnect()
         except Exception as e:
             return e.args
         return UserResponse(

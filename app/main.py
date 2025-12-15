@@ -10,6 +10,7 @@ from litestar.di import Provide
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
+from app.controllers.product_controller import ProductController
 from app.controllers.user_controller import UserController
 from app.rabbit import broker
 from app.repositories.order_repository import OrderRepository
@@ -110,7 +111,7 @@ async def lifespan(app: Litestar):
 
 
 app = Litestar(
-    route_handlers=[UserController],
+    route_handlers=[UserController, ProductController],
     dependencies={
         "db_session": Provide(provide_db_session),
         "user_service": Provide(provide_user_service, use_cache=True),
