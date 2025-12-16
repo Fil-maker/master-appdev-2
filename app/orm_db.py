@@ -73,4 +73,16 @@ class Order(Base):
 
     user = relationship("User", back_populates="orders")
     address = relationship("Address", back_populates="orders")
-    products = relationship("Product", secondary=order_product, back_populates="orders")
+    products = relationship("Product", secondary=order_product, back_populates="orders", lazy='selectin')
+    reports = relationship("Report", back_populates="order", cascade="all, delete-orphan")
+
+
+class Report(Base):
+    __tablename__ = "reports"
+
+    id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
+    report_at: Mapped[datetime] = mapped_column(default=datetime.now().date)
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), nullable=False)
+    stock_quantity = Column(Integer, default=5)
+
+    order = relationship("Order", back_populates="reports")

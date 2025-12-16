@@ -40,7 +40,9 @@ class UserController(Controller):
                     username=user.username,
                     email=user.email,
                 )
-        await cache.connect()
+        else:
+            user = str(user)
+        await cache.disconnect()
         if not user:
             return f"User with ID {user_id} not found"
             # raise NotFoundException(detail=f"User with ID {user_id} not found")

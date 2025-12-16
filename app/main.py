@@ -5,16 +5,18 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from dotenv import load_dotenv
-from litestar import Litestar
+from litestar import Litestar, get
 from litestar.di import Provide
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.controllers.product_controller import ProductController
 from app.controllers.user_controller import UserController
+from app.models.report_model import ReportResponse
 from app.rabbit import broker
 from app.repositories.order_repository import OrderRepository
 from app.repositories.product_repository import ProductRepository
+from app.repositories.report_repository import ReportRepository
 from app.repositories.user_repository import UserRepository
 from app.services.order_service import OrderService
 from app.services.product_service import ProductService
@@ -65,6 +67,11 @@ async def provide_product_repository(db_session: AsyncSession) -> ProductReposit
     return ProductRepository(db_session)
 
 
+async def provide_report_repository(db_session: AsyncSession) -> ReportRepository:
+    """Провайдер репозитория пользователей"""
+    return ReportRepository(db_session)
+
+
 async def provide_order_service(order_repository: OrderRepository) -> OrderService:
     """Провайдер сервиса пользователей"""
     return OrderService(order_repository)
@@ -110,6 +117,20 @@ async def lifespan(app: Litestar):
     await broker.close()
 
 
+@get("/report/{report_date:str}", dependencies={"report_repository": Provide(provide_report_repository)})
+async def get_report(
+        report_repository: ReportRepository,
+        report_date: str
+) -> list[dict]:
+    result = await report_repository.get_by_filter(10, 1, report_at=report_date)
+    reports = [ReportResponse(
+        report_at=str(rep.report_at),
+        order_id=rep.order_id,
+        stock_quantity=rep.stock_quantity).model_dump()
+               for rep in result]
+    return reports
+
+
 app = Litestar(
     route_handlers=[UserController, ProductController],
     dependencies={
@@ -123,6 +144,7 @@ app = Litestar(
     middleware=[LoggingMiddleware],
     lifespan=[lifespan]
 )
+app.register(get_report)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000, log_level=5)
